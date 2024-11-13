@@ -1,0 +1,16 @@
+[
+{
+  "modid": "thinker",
+  "name": "Thinker",
+  "description": "A mod provides Powerful help GUI.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["kuzuanpa"],
+  "credits": "",
+  "logoFile": "thinker.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
