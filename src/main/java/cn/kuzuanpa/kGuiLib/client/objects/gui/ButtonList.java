@@ -137,8 +137,8 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
     }
 
     @Override
-    public boolean updateState(long timer) {
-        if(buttons.stream().anyMatch(buttonBase -> buttonBase.updateState(timer)))return true;
-        return super.updateState(timer);
+    public boolean updateRenderState(long timer) {
+        if(buttons.stream().anyMatch(buttonBase -> buttonBase.updateRenderState(timer)))return true;
+        return super.updateRenderState(timer);
     }
 }

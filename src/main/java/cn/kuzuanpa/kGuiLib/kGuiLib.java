@@ -30,8 +30,7 @@ public class kGuiLib
     public static final String MOD_NAME = "kGuiLib";
     public static final String VERSION = "0.0.1";
 
-    public static int delay = 5;
-    public static boolean isGeckoLibLoaded=false,isServerSide=false,enableDevGUI=true;
+    public static boolean isServerSide=false,enableDevGUI=false;
     @SidedProxy(clientSide = "cn.kuzuanpa.kGuiLib.clientProxy",
             serverSide = "cn.kuzuanpa.kGuiLib.commonProxy")
     public static commonProxy PROXY;
@@ -43,6 +42,8 @@ public class kGuiLib
             FMLLog.log(Level.ERROR,"kGuiLib is an CLIENT only mod, and will disable entirely in Server!");
             return;
         }
+        if(!enableDevGUI)return;//Runtime kGuiLib actually have nothing to register, This just for me to open a GUI quickly to develop kGuiLib
+
         FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
     }

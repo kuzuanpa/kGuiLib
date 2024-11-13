@@ -37,5 +37,7 @@ public class kGuiScreenDev extends kGuiScreenBase {
 		buttons.add(new Image(1,"ideas/resources/tutorial/machineTooltip.png",120,40,240,40).addAnime(new animeMoveSlowIn(000,1000,-80,0,2)));
 		buttons.add(new Image(2,"ideas/resources/tutorial/machineTooltip.png",160,80,240,40).addAnime(new animeMoveSlowIn(000,1500,-120,0,2)));
 		buttons.add(new Image(3,"ideas/resources/tutorial/machineTooltip.png",200,120,240,40).addAnime(new animeMoveSlowIn(000,2000,-160,0,2)));
+
+		addOrUpdateTooltip(0,new String[]{"Hello World!"}, v->v.x>0&&v.x<20);
 	}
 }

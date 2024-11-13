@@ -30,6 +30,7 @@
 
 package cn.kuzuanpa.kGuiLib.client;
 
+import cn.kuzuanpa.kGuiLib.client.objects.IMouseWheelAccepter;
 import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -44,17 +45,19 @@ import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector2f;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * @author kuzuanpa
  */
 @SideOnly(Side.CLIENT)
-public abstract class kGuiContainerBase extends GuiContainer {
+public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
+
 
 	private int displayWidth,displayHeight;
 
@@ -65,9 +68,9 @@ public abstract class kGuiContainerBase extends GuiContainer {
 	public List<ThinkerButtonBase> buttons= new ArrayList<>();
 
 	public kGuiContainerBase(Container container) {
-        super(container);
+		super(container);
 
-        openByUser=true;
+		openByUser=true;
 		allowUserInput = false;
 	}
 
@@ -81,13 +84,20 @@ public abstract class kGuiContainerBase extends GuiContainer {
 
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
+
+		buttons.forEach(ThinkerButtonBase::destroy);
+
+		buttonList.clear();
 		buttons.clear();
 
 		addButtons();
 		if(!buttonList.isEmpty()) FMLLog.log(Level.ERROR, this.toString()+": raw buttonList should not be used!");
 
+		buttonList.addAll(buttons);
+
 		if(openByUser) onOpenByUserAfter();
 	}
+
 
 	public abstract void addButtons();
 
@@ -99,40 +109,54 @@ public abstract class kGuiContainerBase extends GuiContainer {
 	}
 
 	@Override
-	protected void mouseClicked(int p_73864_1_, int p_73864_2_, int mouseButton)
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
 	{
-        for (int l = this.buttonList.size() - 1; l >= 0 ;l--)
-        {
-        	ThinkerButtonBase guibutton = (ThinkerButtonBase)this.buttonList.get(l);
-        	if(guibutton.isMouseInButton(p_73864_1_, p_73864_2_))
-        	{
-        		GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, this.buttonList);
-        		if (MinecraftForge.EVENT_BUS.post(event))
-        			break;
-        		if(event.button.id!=0)event.button.func_146113_a(this.mc.getSoundHandler());
-        		if (this.onButtonPressed(event.button)) break;
-        		if (this.equals(this.mc.currentScreen))
-        			MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.button, this.buttonList));
-        	}
-        }
+		onMouseClicked( mouseX,  mouseY,  mouseButton);
 	}
 
-	protected boolean onButtonPressed(GuiButton button) {
+	@Override
+	public void onMouseClicked(int mouseX, int mouseY, int mouseButton) {
+		for (int l = this.buttonList.size() - 1; l >= 0 ;l--)
+		{
+			ThinkerButtonBase guibutton = (ThinkerButtonBase)this.buttonList.get(l);
+			if(!guibutton.isMouseInButton(mouseX, mouseY))continue;
+			GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, this.buttonList);
 
-		return true;
+			if (MinecraftForge.EVENT_BUS.post(event)) break;
+			guibutton.func_146113_a(this.mc.getSoundHandler());
+
+			byte buttonResult = guibutton.onPressed(this,mouseX,mouseY);
+			if ((buttonResult == 0 || buttonResult == 2) && this.onButtonClicked(guibutton, mouseX,mouseY)) break;
+			if(buttonResult > 1/*==2 or ==3*/)break;
+
+			if (this.equals(this.mc.currentScreen)) MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, guibutton, this.buttonList));
+
+		}
 	}
+
+	/**@return will break buttons search, useful in multi button in one pos**/
+	@Override
+	public boolean onButtonClicked(GuiButton button, int mouseX, int mouseY) {
+		return false;
+	}
+
 	public void handleMouseInput(){
 		super.handleMouseInput();
-		int x = Mouse.getX() * this.width / this.mc.displayWidth;
-		int y =this.height - Mouse.getY() * this.height / this.mc.displayHeight - 1;
-		//if(((ThinkerButtonBase)buttonList.get(3)).visible&&Mouse.isInsideWindow()&&Mouse.getEventDWheel()!=0&& x< profileHandler.profileLayer*32+32&& x>0) profileHandler.handleMouseWheel();
+		int mouseX = Mouse.getX() * this.width / this.mc.displayWidth;
+		int mouseY =this.height - Mouse.getY() * this.height / this.mc.displayHeight - 1;
+		if(Mouse.isInsideWindow()&&Mouse.getEventDWheel()!=0)buttons.stream().filter(buttonBase -> buttonBase instanceof IMouseWheelAccepter).map(button-> ((IMouseWheelAccepter) button)).forEach(button->button.handleMouseWheel(mouseX,mouseY, Mouse.getEventDWheel()));
+
 	}
+
 	public long getTimer(){
 		return System.currentTimeMillis()-initTime;
 	}
 	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_){
-		this.buttons.forEach(b -> b.updateTimer(getTimer()));
+		this.buttons.forEach(b -> {
+			b.updateTimer(getTimer());
+		});
 
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 2);
 		super.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
 
 		//profileHandler.tick();
@@ -150,6 +174,8 @@ public abstract class kGuiContainerBase extends GuiContainer {
 
 	public boolean close() {
 		//profileHandler.oldWheel=0;
+
+		buttons.forEach(ThinkerButtonBase::destroy);
 		this.mc.displayGuiScreen(null);
 		this.mc.setIngameFocus();
 		return true;

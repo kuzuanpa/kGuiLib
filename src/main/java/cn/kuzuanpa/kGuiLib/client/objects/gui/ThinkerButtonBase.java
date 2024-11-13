@@ -20,6 +20,7 @@ import cn.kuzuanpa.kGuiLib.client.anime.IGuiAnime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.shader.Framebuffer;
@@ -53,9 +54,12 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableThinkerOb
         int screenHeight = Minecraft.getMinecraft().displayHeight;
 
         GL11.glPushMatrix();
+
+        ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        GL11.glOrtho(0.0D, screenWidth/1.5,screenHeight/1.5, 0.0D, 1000.0D, 3000.0D);
+        GL11.glOrtho(0.0D, scaledresolution.getScaledWidth_double(), scaledresolution.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
         GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
@@ -159,7 +163,7 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableThinkerOb
     /**@return 0: notify GUI to process this click event, 1: continue search without notify GUI, 2: stop search and notify GUI, 3: stop search without notify GUI**/
     public byte onPressed(IkGui gui, int posX, int posY){return 0;}
     public ArrayList<IGuiAnime> getGuiAnimeList() {return GuiAnimeList;}
-    public boolean updateState(long timer){
+    public boolean updateRenderState(long timer){
         return !firstFrameRendered || IAnimatableThinkerObject.isAnimeActive(this, this.timer);
     }
 }
