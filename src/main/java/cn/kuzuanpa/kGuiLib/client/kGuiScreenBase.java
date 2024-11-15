@@ -37,12 +37,16 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
@@ -111,6 +115,10 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		openByUser=false;
 	}
 
+	public IkGui parentGui = null;
+	public IkGui  childGui = null;
+
+
 	public void initGui() {
 		super.initGui();
 
@@ -127,22 +135,77 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 		buttonList.addAll(buttons);
 
+		if(childGui != null) childGui.initGui();
+
 		if(openByUser) onOpenByUserAfter();
 	}
 
+	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_){
+		this.buttons.forEach(b -> b.updateTimer(getTimer()));
 
-	public abstract void addButtons();
+		//draw buttons
+		super.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
 
+		if(childGui != null) childGui.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
+
+		if(!Mouse.isInsideWindow()) return;
+
+		int x = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
+		int y = mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
+
+		drawButtonTooltips(x,y);
+		drawRequestedTooltips(x,y);
+	}
+	public void drawButtonTooltips(int mouseX, int mouseY){
+		GL11.glPushMatrix();
+		//Draw button tooltips
+		buttons.forEach(button -> {
+			if (!button.visible) return;
+			if (button.isMouseInButton(mouseX, mouseY)) hoveringString = Collections.singletonList(button.displayString);
+		});
+
+		if (hoveringString != null && hoveringString.stream().noneMatch(String::isEmpty)) drawHoveringText(hoveringString, mouseX, mouseY + 5, fontRendererObj);
+
+
+		GL11.glPopMatrix();
+	}
+
+	public void drawRequestedTooltips(int mouseX, int mouseY){
+		requestedTooltipMap.values().forEach(tooltip -> {
+			if (tooltip != null && tooltip.additionalCondition && tooltip.isPosCheckPassed) drawHoveringText(tooltip.strings, mouseX, mouseY, fontRendererObj);
+		});
+	}
+
+	public boolean close() {
+		//profileHandler.oldWheel=0;
+		if(parentGui !=null) {
+			parentGui.setChildGui(null);
+			releaseResources();
+			return false;
+		}
+		if(childGui !=null) childGui.close();
+		releaseResources();
+		this.mc.displayGuiScreen(null);
+		this.mc.setIngameFocus();
+		return true;
+	}
+	@Override
+	public void releaseResources() {
+		buttons.forEach(ThinkerButtonBase::destroy);
+		if(childGui!=null)childGui.releaseResources();
+	}
 	public String l10n(String key){String text1= LanguageRegistry.instance().getStringLocalization(key);return text1.isEmpty() ? key: text1;}
 
 	protected void keyTyped(char p_73869_1_, int p_73869_2_)
 	{
-		if (p_73869_2_ == Keyboard.KEY_ESCAPE) close();
+		if(childGui!=null)childGui.onKeyTyped(p_73869_1_,p_73869_2_);
+		else onKeyTyped(p_73869_1_,p_73869_2_);
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
 	{
+		if(childGui!=null)childGui.onMouseClicked(mouseX,mouseY,mouseButton);
 		onMouseClicked( mouseX,  mouseY,  mouseButton);
 	}
 
@@ -160,7 +223,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 			byte buttonResult = guibutton.onPressed(this,mouseX,mouseY);
 			if(buttonResult > 0)hasButtonPressed = true;
-			if ((buttonResult == 0 || buttonResult == 2) && this.onButtonClicked(guibutton, mouseX,mouseY)) break;
+			if ((buttonResult == 0 || buttonResult == 2) && this.onButtonPressed(guibutton, mouseX,mouseY)) break;
 			if(buttonResult > 1/*==2 or ==3*/)break;
 
 			if (this.equals(this.mc.currentScreen)) MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, guibutton, this.buttonList));
@@ -170,64 +233,57 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 	/**@return will break buttons search, useful in multi button in one pos**/
 	@Override
-	public boolean onButtonClicked(GuiButton button, int mouseX, int mouseY) {
+	public boolean onButtonPressed(GuiButton button, int mouseX, int mouseY) {
 		return false;
 	}
 
 	public void handleMouseInput(){
 		super.handleMouseInput();
-		int mouseX = Mouse.getX() * this.width / this.mc.displayWidth;
-		int mouseY =this.height - Mouse.getY() * this.height / this.mc.displayHeight - 1;
+		if(childGui!=null)childGui.handleMouseInput();
+		int mouseX = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
+		int mouseY = mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
 
-		requestedTooltipMap.values().forEach(tooltip -> tooltip.isPosCheckPassed=tooltip.posPredicate.test(new Vector2f(mouseX,mouseY)));
-
+		checkRequestedTooltipPos(mouseX,mouseY);
 		if(Mouse.isInsideWindow()&&Mouse.getEventDWheel()!=0)buttons.stream().filter(buttonBase -> buttonBase instanceof IMouseWheelAccepter).map(button-> ((IMouseWheelAccepter) button)).forEach(button->button.handleMouseWheel(mouseX,mouseY, Mouse.getEventDWheel()));
 
 	}
-
+	public void checkRequestedTooltipPos(int mouseX, int mouseY){
+		requestedTooltipMap.values().forEach(tooltip -> tooltip.isPosCheckPassed=tooltip.posPredicate.test(new Vector2f(mouseX,mouseY)));
+	}
 	public long getTimer(){
 		return System.currentTimeMillis()-initTime;
 	}
-	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_){
-		this.buttons.forEach(b -> b.updateTimer(getTimer()));
 
-		//draw buttons
-		super.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
-
-		drawTooltips();
-	}
-
-	public void drawTooltips(){
-		if(!Mouse.isInsideWindow()) return;
-		int x = Mouse.getX() * this.width / this.mc.displayWidth;
-		int y = this.height - Mouse.getY() * this.height / this.mc.displayHeight - 1;
-
-		GL11.glPushMatrix();
-		//Draw button tooltips
-		buttons.forEach(button -> {
-			if (!button.visible) return;
-			if (button.isMouseInButton(x, y)) hoveringString = Collections.singletonList(button.displayString);
-		});
-
-		//Draw requested tooltips
-		requestedTooltipMap.values().forEach(tooltip -> {
-			if (tooltip != null && tooltip.additionalCondition && tooltip.isPosCheckPassed) drawHoveringText(tooltip.strings, x, y, fontRendererObj);
-		});
-
-		if (hoveringString != null && hoveringString.stream().noneMatch(String::isEmpty)) drawHoveringText(hoveringString, x, y + 5, fontRendererObj);
-		GL11.glPopMatrix();
-	}
-
-	public boolean close() {
-		//profileHandler.oldWheel=0;
-
-		buttons.forEach(ThinkerButtonBase::destroy);
-		this.mc.displayGuiScreen(null);
-		this.mc.setIngameFocus();
-		return true;
-	}
 	public boolean doesGuiPauseGame()
 	{
 		return false;
+	}
+
+	@Override
+	public IkGui setMC(Minecraft mc) {
+		this.mc=mc;
+		return this;
+	}
+
+	@Override
+	public IkGui setFontRenderer(FontRenderer fontRenderer) {
+		this.fontRendererObj=fontRenderer;
+		return this;
+	}
+	@Override
+	public IkGui setParentGui(IkGui parentGui) {
+		this.parentGui = parentGui;
+		return this;
+	}
+	@Override
+	public IkGui setChildGui(IkGui childGui) {
+		this.childGui = childGui;
+		return this;
+	}
+
+	@Override
+	public void setWorldAndResolution(Minecraft p_146280_1_, int p_146280_2_, int p_146280_3_) {
+		releaseResources();
+		super.setWorldAndResolution(p_146280_1_, p_146280_2_, p_146280_3_);
 	}
 }

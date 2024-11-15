@@ -70,7 +70,7 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
             guibutton.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
 
             byte buttonResult = guibutton.onPressed(gui,mouseX,mouseY);
-            if ((buttonResult == 0 || buttonResult == 2) && gui.onButtonClicked(guibutton, mouseX,mouseY)) break;
+            if ((buttonResult == 0 || buttonResult == 2) && gui.onButtonPressed(guibutton, mouseX,mouseY)) break;
             if(buttonResult > 1/*==2 or ==3*/)break;
         }
         return 0;

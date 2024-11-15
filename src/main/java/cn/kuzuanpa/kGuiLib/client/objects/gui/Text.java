@@ -37,8 +37,8 @@ import org.lwjgl.opengl.GL11;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Text extends ThinkerButtonBase {
-    int color;
-    String text;
+    public int color;
+    public String text;
     public Text(int id, String text, int posX, int posY){
         super(id,posX,posY,text.length(),12,"");
         this.text=text;
@@ -57,7 +57,7 @@ public class Text extends ThinkerButtonBase {
             GuiAnimeList.forEach(anime -> anime.animeDraw(timer));
             GL11.glTranslatef(-(xPosition + (height / 2F)), -(yPosition + (width / 2F)),0);
 
-            AtomicInteger color = new AtomicInteger(0xffffffff);
+            AtomicInteger color = new AtomicInteger(this.color);
             GuiAnimeList.stream().filter(anime->anime instanceof IColorChangedAnime).map(anime-> ((IColorChangedAnime) anime)).forEach(anime-> color.set(((Math.max(4,anime.getA(timer)) & 0xFF) << 24) | //when alpha < 4, font will render as no alpha, f**k you mojang
                     ((anime.getR(timer) & 0xFF) << 16) |
                     ((anime.getG(timer) & 0xFF) << 8)  |

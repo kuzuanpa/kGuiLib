@@ -32,12 +32,15 @@ public class kGuiScreenDev extends kGuiScreenBase {
 
 	@Override
 	public void addButtons() {
+		buttons.add(new Text(1,"ideas/resources/tutorial/machineTooltip.png",10,130).addAnime(new animeScaleIn(1000,0.5F,0.5F)));
 
-		buttons.add(new Image(0,"ideas/resources/tutorial/machineTooltip.png",80,0,240,40).addAnime(new animeMoveSlowIn(000,500,-40,0,2)));
-		buttons.add(new Image(1,"ideas/resources/tutorial/machineTooltip.png",120,40,240,40).addAnime(new animeMoveSlowIn(000,1000,-80,0,2)));
-		buttons.add(new Image(2,"ideas/resources/tutorial/machineTooltip.png",160,80,240,40).addAnime(new animeMoveSlowIn(000,1500,-120,0,2)));
-		buttons.add(new Image(3,"ideas/resources/tutorial/machineTooltip.png",200,120,240,40).addAnime(new animeMoveSlowIn(000,2000,-160,0,2)));
+		buttons.add(new Image(3,"ideas/resources/tutorial/machineTooltip.png",10,30,240,40).addAnime(new animeScaleIn(1000,0.5F,0.5F)));
 
 		addOrUpdateTooltip(0,new String[]{"Hello World!"}, v->v.x>0&&v.x<20);
+	}
+
+	@Override
+	public void onKeyTyped(char key, int keyCode) {
+		close();
 	}
 }

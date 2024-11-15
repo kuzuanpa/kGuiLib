@@ -30,7 +30,7 @@ public class kGuiLib
     public static final String MOD_NAME = "kGuiLib";
     public static final String VERSION = "0.0.1";
 
-    public static boolean isServerSide=false,enableDevGUI=false;
+    public static boolean isServerSide=false,enableDevGUI=true;
     @SidedProxy(clientSide = "cn.kuzuanpa.kGuiLib.clientProxy",
             serverSide = "cn.kuzuanpa.kGuiLib.commonProxy")
     public static commonProxy PROXY;

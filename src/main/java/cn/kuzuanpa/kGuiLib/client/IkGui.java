@@ -15,9 +15,24 @@
 
 package cn.kuzuanpa.kGuiLib.client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 
 public interface IkGui {
+    void initGui();
+    void addButtons();
+    void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_);
+    void releaseResources();
+    boolean close();
+
+    void onKeyTyped(char key, int keyCode);
     void onMouseClicked(int mouseX, int mouseY, int mouseButton);
-    boolean onButtonClicked(GuiButton button, int mouseX, int mouseY);
+    boolean onButtonPressed(GuiButton button, int mouseX, int mouseY);
+    void handleMouseInput();
+
+    IkGui setMC(Minecraft mc);
+    IkGui setFontRenderer(FontRenderer fontRenderer);
+    IkGui setParentGui(IkGui gui);
+    IkGui setChildGui(IkGui gui);
 }
