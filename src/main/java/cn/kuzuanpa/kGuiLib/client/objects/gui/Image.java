@@ -15,7 +15,7 @@
 
 package cn.kuzuanpa.kGuiLib.client.objects.gui;
 
-import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableButton;
 import cn.kuzuanpa.kGuiLib.client.anime.IGuiAnime;
 import cpw.mods.fml.common.FMLLog;
 import net.minecraft.client.Minecraft;
@@ -23,18 +23,14 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
 
-import static cn.kuzuanpa.kGuiLib.kGuiLib.getInt;
-
-public class Image extends ThinkerButtonBase implements IAnimatableThinkerObject {
+public class Image extends ThinkerButtonBase implements IAnimatableButton {
 
     public Image(int id, String texturePath, int posX, int posY, int width, int height){
         super(id,posX,posY,width,height,"");
@@ -80,7 +76,7 @@ public class Image extends ThinkerButtonBase implements IAnimatableThinkerObject
     public void drawButton2(Minecraft mc, int mouseX, int mouseY){
         if (this.visible) {
 
-            IAnimatableThinkerObject.drawPre(this,timer);
+            if(!isAnimatedInFBO)IAnimatableButton.drawPre(this,timer);
 
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, glTextureId);
 
@@ -94,11 +90,11 @@ public class Image extends ThinkerButtonBase implements IAnimatableThinkerObject
             tessellator.addVertexWithUV(posX + width, posY, zLevel, width * var7, 0);
             tessellator.addVertexWithUV(posX, posY, zLevel, 0, 0);
             GL11.glTranslatef(xPosition, yPosition ,0);
-            GuiAnimeList.forEach(anime -> anime.animeDraw(timer));
+            if(!isAnimatedInFBO)IAnimatableButton.draw(this,timer);
             GL11.glTranslatef(-(xPosition ), -(yPosition ),0);
             tessellator.draw();
 
-            IAnimatableThinkerObject.drawAfter(this,timer);
+            if(!isAnimatedInFBO)IAnimatableButton.drawAfter(this,timer);
         }
     }
 

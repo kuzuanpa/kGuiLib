@@ -29,13 +29,10 @@
  */
 package cn.kuzuanpa.kGuiLib.client.objects.gui;
 
-import cn.kuzuanpa.kGuiLib.client.anime.IColorChangedAnime;
-import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultBackground extends ThinkerButtonBase {
     int color;
@@ -47,7 +44,7 @@ public class DefaultBackground extends ThinkerButtonBase {
     }
     public void drawButton2(Minecraft mc, int mouseX, int mouseY){
         if (this.visible) {
-            IAnimatableThinkerObject.drawPre(this,timer);
+            IAnimatableButton.drawPre(this,timer);
 
             GL11.glTranslatef(xPosition + (height / 2F), yPosition + (width / 2F),0);
             GuiAnimeList.forEach(anime -> anime.animeDraw(timer));
@@ -70,7 +67,7 @@ public class DefaultBackground extends ThinkerButtonBase {
             //mixinHandler.cancelForgeFontColorOverride=false;
             GuiAnimeList.forEach(anime -> anime.animeDrawAfter(timer));
 
-            IAnimatableThinkerObject.drawAfter(this,timer);
+            IAnimatableButton.drawAfter(this,timer);
         }
     }
 }

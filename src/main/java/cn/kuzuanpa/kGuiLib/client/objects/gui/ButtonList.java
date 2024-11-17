@@ -18,30 +18,38 @@ package cn.kuzuanpa.kGuiLib.client.objects.gui;
 import cn.kuzuanpa.kGuiLib.client.IkGui;
 import cn.kuzuanpa.kGuiLib.client.anime.IColorChangedAnime;
 import cn.kuzuanpa.kGuiLib.client.anime.IGuiAnime;
-import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableButton;
 import cn.kuzuanpa.kGuiLib.client.objects.IBoundedButton;
 import cn.kuzuanpa.kGuiLib.client.objects.IMouseWheelAccepter;
-import cn.kuzuanpa.kGuiLib.client.objects.IThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IkGuiButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerObject, IBoundedButton, IMouseWheelAccepter {
-    int color;
+public class ButtonList extends ThinkerButtonBase implements IAnimatableButton, IBoundedButton, IMouseWheelAccepter {
+    int color, maxScrolled;
     public ButtonList(int id, int posX, int posY, int width, int height){
         super(id,posX,posY,width,height,"");
         this.color=-1;
+        maxScrolled=height;
     }
+
+    public ButtonList setMaxScrolled(int maxScrolled) {
+        this.maxScrolled = maxScrolled;
+        return this;
+    }
+
     public float oldWheel=0F,YOffset=0,Inertia = 1.0F,scrollSpeed = 1.0F;
     public void tickWheel(){
         oldWheel+=oldWheel>0?-Inertia*10F : Inertia*10F;
         if(Math.abs(oldWheel)<= Inertia*10F)oldWheel=0;
         YOffset+=oldWheel/300*(scrollSpeed);
         if((YOffset)>0){YOffset=0;oldWheel=0;return;}
-        if((YOffset)<-this.height){YOffset=-height;oldWheel=0;}
+        if((YOffset)<-maxScrolled){YOffset=-maxScrolled;oldWheel=0;}
     }
     List<ThinkerButtonBase> buttons= new ArrayList<>();
 
@@ -50,6 +58,17 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
         return this;
     }
 
+    public ButtonList removeSubButton(ThinkerButtonBase button){
+        button.destroy();
+        buttons.remove(button);
+        return this;
+    }
+
+    public ButtonList clearSubButton(){
+        buttons.forEach(IkGuiButton::destroy);
+        buttons.clear();
+        return this;
+    }
     @Override
     public ThinkerButtonBase addAnime(IGuiAnime anime) {
         if(anime instanceof IColorChangedAnime) buttons.forEach(b->b.addAnime(anime));
@@ -78,22 +97,24 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
 
     @Override
     public void drawFBOToScreen(Minecraft mc, int mouseX, int mouseY) {
-        IAnimatableThinkerObject.drawPre(this,timer);
+        IAnimatableButton.drawPre(this,timer);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.fbo.framebufferTexture);
+        ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
 
-
+        int w = scaledresolution.getScaledWidth();
+        int h = scaledresolution.getScaledHeight();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.fbo.framebufferTexture);
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(0.0D,  Minecraft.getMinecraft().displayHeight, 0.0D, 0.0D, 0.0D);
-        tessellator.addVertexWithUV( Minecraft.getMinecraft().displayWidth,  Minecraft.getMinecraft().displayHeight, 0.0D, 1, 0.0D);
-        tessellator.addVertexWithUV( Minecraft.getMinecraft().displayWidth, 0.0D, 0.0D, 1, 1);
+        tessellator.addVertexWithUV(0.0D,  h, 0.0D, 0.0D, 0.0D);
+        tessellator.addVertexWithUV( w,  h, 0.0D, 1, 0.0D);
+        tessellator.addVertexWithUV( w, 0.0D, 0.0D, 1, 1);
         tessellator.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, 1);
 
-        IAnimatableThinkerObject.draw(this,timer);
+        IAnimatableButton.draw(this,timer);
         tessellator.draw();
 
-
-        IAnimatableThinkerObject.drawAfter(this,timer);
+        IAnimatableButton.drawAfter(this,timer);
     }
 
     @Override
@@ -102,9 +123,10 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
         IBoundedButton.drawPre(this);
         tickWheel();
         GL11.glTranslatef(0,YOffset,0);
-        buttons.forEach(b->b.drawButton2(mc, mouseX, mouseY));
+        buttons.stream().filter(button-> button.xPosition + button.height > xPosition && button.xPosition < xPosition+height).forEach(b->b.drawButton(mc, mouseX, mouseY));
         IBoundedButton.drawAfter();
     }
+
 
     @Override
     public int getPosX() {
@@ -127,7 +149,7 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableThinkerO
     }
     @Override
     public void destroy() {
-        buttons.forEach(IThinkerObject::destroy);
+        buttons.forEach(IkGuiButton::destroy);
     }
 
     @Override

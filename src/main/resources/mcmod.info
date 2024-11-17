@@ -1,15 +1,15 @@
 [
 {
-  "modid": "thinker",
-  "name": "Thinker",
-  "description": "A mod provides Powerful help GUI.",
+  "modid": "kguilib",
+  "name": "kGuiLib",
+  "description": "A Lib Mod provides simple GUI creating method with animations.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["kuzuanpa"],
   "credits": "",
-  "logoFile": "thinker.png",
+  "logoFile": "kguilib.png",
   "screenshots": [],
   "dependencies": []
 }

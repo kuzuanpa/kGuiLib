@@ -30,7 +30,7 @@
 
 package cn.kuzuanpa.kGuiLib.client.objects.gui;
 
-import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableButton;
 import cn.kuzuanpa.kGuiLib.client.util.configNumber;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -51,13 +51,15 @@ public class NumberConfigButton extends ThinkerButtonBase {
     {
         if (this.visible)
         {
-            IAnimatableThinkerObject.drawPre(this,timer);
+            if(!isAnimatedInFBO)IAnimatableButton.drawPre(this,timer);
 
             FontRenderer fontrenderer = p_146112_1_.fontRenderer;
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             boolean isMouseHovering=this.isMouseInButton(mouseX,mouseY);
             int k = this.getHoverState(isMouseHovering);
-            GuiAnimeList.forEach(anime -> anime.animeDraw(timer));
+
+            if(!isAnimatedInFBO)IAnimatableButton.draw(this,timer);
+
             float progress=config.get()/(config.max()-config.min());
             drawRect(xPosition+2,yPosition+height/2,xPosition+width-2,yPosition+(height/2)+1,0xcccccccc);
             drawRect((int) (xPosition+2+(width-4)*progress)-1,yPosition+10, (int) (xPosition+2+(width-4)*progress)+1,yPosition+height-10,-1);
@@ -69,7 +71,7 @@ public class NumberConfigButton extends ThinkerButtonBase {
             this.drawCenteredString(fontrenderer, nf.format(config.get()), this.xPosition+width/2, this.yPosition+height-10, -1);
             this.drawCenteredString(fontrenderer, nf.format(config.max()), this.xPosition+width, this.yPosition+height-10, -1);
 
-            IAnimatableThinkerObject.drawAfter(this,timer);
+            if(!isAnimatedInFBO) IAnimatableButton.drawAfter(this,timer);
         }
     }
 }

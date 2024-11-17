@@ -26,7 +26,7 @@
 package cn.kuzuanpa.kGuiLib.client.objects.gui;
 
 import cn.kuzuanpa.kGuiLib.client.IkGui;
-import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableThinkerObject;
+import cn.kuzuanpa.kGuiLib.client.objects.IAnimatableButton;
 import cn.kuzuanpa.kGuiLib.client.util.configBoolean;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -44,18 +44,18 @@ public class BooleanConfigButton extends ThinkerButtonBase {
     {
         if (this.visible)
         {
-            IAnimatableThinkerObject.drawPre(this, timer);
+            if(!isAnimatedInFBO)IAnimatableButton.drawPre(this,timer);
 
             FontRenderer fontrenderer = p_146112_1_.fontRenderer;
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-            GuiAnimeList.forEach(anime -> anime.animeDraw(timer));
+            if(!isAnimatedInFBO) IAnimatableButton.draw(this, timer);
 
             drawRect(xPosition+2,yPosition+height/2,xPosition+width-2,yPosition+(height/2)+1,config.get()?0xff99ffcc:0x99ff99cc);
 
             this.drawString(fontrenderer, this.displayString, this.xPosition, this.yPosition, -1);
 
-            IAnimatableThinkerObject.drawAfter(this, timer);
+            if(!isAnimatedInFBO) IAnimatableButton.drawAfter(this, timer);
         }
     }
 

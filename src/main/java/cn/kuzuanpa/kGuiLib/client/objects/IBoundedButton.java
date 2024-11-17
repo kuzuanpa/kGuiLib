@@ -18,7 +18,7 @@ package cn.kuzuanpa.kGuiLib.client.objects;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
-public interface IBoundedButton extends IThinkerObject {
+public interface IBoundedButton extends IkGuiButton {
     int getPosX();
     int getPoxY();
     int getSizeX();
