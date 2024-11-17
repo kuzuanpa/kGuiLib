@@ -54,8 +54,6 @@ import org.lwjgl.util.vector.Vector2f;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static cn.kuzuanpa.ktfruaddon.ktfruaddon.MOD_ID;
-
 /**
  * @author kuzuanpa
  */
