@@ -6,14 +6,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-import static cn.kuzuanpa.ktfruaddon.ktfruaddon.MOD_ID;
-
 public class CommonTexturedButton extends ThinkerButtonBase {
-    public CommonTexturedButton(int id, int xPos, int yPos,int u,int v, int width, int height, String path) {
+    public CommonTexturedButton(int id, int xPos, int yPos,int u,int v, int width, int height,String modid, String path) {
         super(id, xPos, yPos, width, height, "");
         this.u=u;
         this.v=v;
-        textureLocation =  new ResourceLocation(MOD_ID,path);
+        textureLocation =  new ResourceLocation(modid,path);
     }
     public int u,v;
     final ResourceLocation textureLocation;
