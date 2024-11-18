@@ -13,21 +13,6 @@
  *
  */
 
-/*
- * This class was created by <kuzuanpa>. It is a part of kGuiLib.
- * Get the Source Code in github:
- * https://github.com/kuzuanpa/kGuiLib
- *
- * kGuiLib is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * kGuiLib is Open Source and distributed under the
- * AGPLv3 License: https://www.gnu.org/licenses/agpl-3.0.txt
- *
- */
-
 package cn.kuzuanpa.kGuiLib.client;
 
 import cn.kuzuanpa.kGuiLib.client.objects.IMouseWheelAccepter;
@@ -41,9 +26,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
@@ -118,10 +100,13 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	public IkGui parentGui = null;
 	public IkGui  childGui = null;
 
-
+	@Override
 	public void initGui() {
-		super.initGui();
+		initGui2();
+	}
 
+	public void initGui2() {
+		super.initGui();
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
 
@@ -135,18 +120,21 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 		buttonList.addAll(buttons);
 
-		if(childGui != null) childGui.initGui();
+		if(childGui != null) childGui.initGui2();
 
 		if(openByUser) onOpenByUserAfter();
 	}
-
-	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_){
+	@Override
+	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_) {
+		drawScreen2(p_73863_1_, p_73863_2_, p_73863_3_);
+	}
+	public void drawScreen2(int p_73863_1_, int p_73863_2_, float p_73863_3_){
 		this.buttons.forEach(b -> b.updateTimer(getTimer()));
 
 		//draw buttons
 		super.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
 
-		if(childGui != null) childGui.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
+		if(childGui != null) childGui.drawScreen2(p_73863_1_,p_73863_2_,p_73863_3_);
 
 		if(!Mouse.isInsideWindow()) return;
 
@@ -237,9 +225,14 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		return false;
 	}
 
-	public void handleMouseInput(){
+	@Override
+	public void handleMouseInput() {
+		handleMouseInput2();
+	}
+
+	public void handleMouseInput2(){
 		super.handleMouseInput();
-		if(childGui!=null)childGui.handleMouseInput();
+		if(childGui!=null)childGui.handleMouseInput2();
 		int mouseX = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
 		int mouseY = mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
 

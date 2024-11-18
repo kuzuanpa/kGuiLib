@@ -20,16 +20,16 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 
 public interface IkGui {
-    void initGui();
+    void initGui2();
     void addButtons();
-    void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_);
+    void drawScreen2(int p_73863_1_, int p_73863_2_, float p_73863_3_);
     void releaseResources();
     boolean close();
 
     void onKeyTyped(char key, int keyCode);
     void onMouseClicked(int mouseX, int mouseY, int mouseButton);
     boolean onButtonPressed(GuiButton button, int mouseX, int mouseY);
-    void handleMouseInput();
+    void handleMouseInput2();
 
     IkGui setMC(Minecraft mc);
     IkGui setFontRenderer(FontRenderer fontRenderer);

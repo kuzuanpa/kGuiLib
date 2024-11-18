@@ -28,9 +28,9 @@ public class kGuiLib
 {
     public static final String MOD_ID = "kguilib";
     public static final String MOD_NAME = "kGuiLib";
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "1.1.1";
 
-    public static boolean isServerSide=false,enableDevGUI=true;
+    public static boolean isServerSide=false,enableDevGUI=false;
     @SidedProxy(clientSide = "cn.kuzuanpa.kGuiLib.clientProxy",
             serverSide = "cn.kuzuanpa.kGuiLib.commonProxy")
     public static commonProxy PROXY;

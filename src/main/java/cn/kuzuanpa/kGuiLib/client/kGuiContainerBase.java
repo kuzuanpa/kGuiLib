@@ -117,9 +117,13 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 	public IkGui  childGui = null;
 
 
+	@Override
 	public void initGui() {
-		super.initGui();
+		initGui2();
+	}
 
+	public void initGui2() {
+		super.initGui();
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
 
@@ -133,19 +137,24 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 
 		buttonList.addAll(buttons);
 
-		if(childGui != null) childGui.initGui();
+		if(childGui != null) childGui.initGui2();
 
 		if(openByUser) onOpenByUserAfter();
 	}
 
-	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_){
+	@Override
+	public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_) {
+		drawScreen2(p_73863_1_, p_73863_2_, p_73863_3_);
+	}
+
+	public void drawScreen2(int p_73863_1_, int p_73863_2_, float p_73863_3_){
 		GL11.glEnable(GL11.GL_BLEND);
 		this.buttons.forEach(b -> b.updateTimer(getTimer()));
 
 		//draw buttons
 		super.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
 
-		if(childGui != null) childGui.drawScreen(p_73863_1_,p_73863_2_,p_73863_3_);
+		if(childGui != null) childGui.drawScreen2(p_73863_1_,p_73863_2_,p_73863_3_);
 
 		drawTooltips();
 	}
@@ -235,10 +244,15 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 		return false;
 	}
 
-	public void handleMouseInput(){
+	@Override
+	public void handleMouseInput() {
+		handleMouseInput2();
+	}
+
+	public void handleMouseInput2(){
 		super.handleMouseInput();
 
-		if(childGui!=null)childGui.handleMouseInput();
+		if(childGui!=null)childGui.handleMouseInput2();
 		int mouseX = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
 		int mouseY =mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
 
