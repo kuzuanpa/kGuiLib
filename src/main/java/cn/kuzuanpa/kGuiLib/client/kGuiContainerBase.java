@@ -40,16 +40,20 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -236,6 +240,104 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 			if (this.equals(this.mc.currentScreen)) MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, guibutton, this.buttonList));
 		}
 		if(!hasButtonPressed)onNoButtonPressed();
+		handleSlotClick(mouseX,mouseY,mouseButton);
+	}
+
+	public void handleSlotClick(int p_73864_1_, int p_73864_2_, int p_73864_3_){
+		boolean flag = p_73864_3_ == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100;
+		Slot slot = this.getSlotAtPosition(p_73864_1_, p_73864_2_);
+		long l = Minecraft.getSystemTime();
+		this.field_146993_M = this.field_146998_K == slot && l - this.field_146997_J < 250L && this.field_146992_L == p_73864_3_;
+		this.field_146995_H = false;
+
+		if (p_73864_3_ == 0 || p_73864_3_ == 1 || flag)
+		{
+			int i1 = this.guiLeft;
+			int j1 = this.guiTop;
+			boolean flag1 = p_73864_1_ < i1 || p_73864_2_ < j1 || p_73864_1_ >= i1 + this.xSize || p_73864_2_ >= j1 + this.ySize;
+			int k1 = -1;
+
+			if (slot != null)
+			{
+				k1 = slot.slotNumber;
+			}
+
+			if (flag1)
+			{
+				k1 = -999;
+			}
+
+			if (this.mc.gameSettings.touchscreen && flag1 && this.mc.thePlayer.inventory.getItemStack() == null)
+			{
+				this.mc.displayGuiScreen((GuiScreen)null);
+				return;
+			}
+
+			if (k1 != -1)
+			{
+				if (this.mc.gameSettings.touchscreen)
+				{
+					if (slot != null && slot.getHasStack())
+					{
+						this.clickedSlot = slot;
+						this.draggedStack = null;
+						this.isRightMouseClick = p_73864_3_ == 1;
+					}
+					else
+					{
+						this.clickedSlot = null;
+					}
+				}
+				else if (!this.field_147007_t)
+				{
+					if (this.mc.thePlayer.inventory.getItemStack() == null)
+					{
+						if (p_73864_3_ == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100)
+						{
+							this.handleMouseClick(slot, k1, p_73864_3_, 3);
+						}
+						else
+						{
+							boolean flag2 = k1 != -999 && (Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54));
+							byte b0 = 0;
+
+							if (flag2)
+							{
+								this.field_146994_N = slot != null && slot.getHasStack() ? slot.getStack() : null;
+								b0 = 1;
+							}
+							else if (k1 == -999)
+							{
+								b0 = 4;
+							}
+
+							this.handleMouseClick(slot, k1, p_73864_3_, b0);
+						}
+
+						this.field_146995_H = true;
+					}
+					else
+					{
+						this.field_147007_t = true;
+						this.field_146988_G = p_73864_3_;
+						this.field_147008_s.clear();
+
+						if (p_73864_3_ == 0)
+						{
+							this.field_146987_F = 0;
+						}
+						else if (p_73864_3_ == 1)
+						{
+							this.field_146987_F = 1;
+						}
+					}
+				}
+			}
+		}
+
+		this.field_146998_K = slot;
+		this.field_146997_J = l;
+		this.field_146992_L = p_73864_3_;
 	}
 
 	/**@return will break buttons search, useful in multi button in one pos**/

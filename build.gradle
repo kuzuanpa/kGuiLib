@@ -63,7 +63,13 @@ processResources {
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
 }
-
+jar {
+    manifest {
+        attributes(
+                'FMLAT': 'kguilib_at.cfg'
+        )
+    }
+}
 // Ensures that the encoding of source files is set to UTF-8, see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
