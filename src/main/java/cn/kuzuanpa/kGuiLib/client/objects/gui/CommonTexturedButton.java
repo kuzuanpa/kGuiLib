@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-public class CommonTexturedButton extends ThinkerButtonBase {
+public class CommonTexturedButton extends kGuiButtonBase {
     public CommonTexturedButton(int id, int xPos, int yPos,int u,int v, int width, int height,String modid, String path) {
         super(id, xPos, yPos, width, height, "");
         this.u=u;

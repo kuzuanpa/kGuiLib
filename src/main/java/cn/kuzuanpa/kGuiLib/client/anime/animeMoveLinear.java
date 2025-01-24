@@ -29,12 +29,8 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Map;
-
-import static cn.kuzuanpa.kGuiLib.kGuiLib.getInt;
 
 public class animeMoveLinear implements IGuiAnime {
     public animeMoveLinear(int startTime, int endTime, int dX, int dY){
@@ -62,7 +58,7 @@ public class animeMoveLinear implements IGuiAnime {
     }
 
     @Override
-    public void updateButton(long time, ThinkerButtonBase button) {
+    public void updateButton(long time, kGuiButtonBase button) {
         long timer = System.currentTimeMillis()- time;
         if(timer<startTime) return;
         if (timer < endTime) {

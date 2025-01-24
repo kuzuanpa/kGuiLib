@@ -15,11 +15,9 @@
 
 package cn.kuzuanpa.kGuiLib.client.anime.shortcut;
 
-import cn.kuzuanpa.kGuiLib.client.anime.IGuiAnime;
 import cn.kuzuanpa.kGuiLib.client.anime.animeMoveLinear;
 import cn.kuzuanpa.kGuiLib.client.anime.animeMoveSlowIn;
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
-import org.lwjgl.opengl.GL11;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 
 public class animeMoveFadeIn extends animeFadeIn {
     static final int dX = 20;
@@ -54,7 +52,7 @@ public class animeMoveFadeIn extends animeFadeIn {
     }
 
     @Override
-    public void updateButton(long time, ThinkerButtonBase button) {
+    public void updateButton(long time, kGuiButtonBase button) {
         super.updateButton(time, button);
         subAnimePreMove.updateButton(time,button);
         subAnimeMove.updateButton(time, button);

@@ -29,14 +29,14 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 
 public interface IGuiAnime {
     void animeDraw(long time);
     void animeDrawPre(long time);
     void animeDrawAfter(long time);
     /**Some Anime changed Position or Scale of buttons. update them in there to make things perform correctly when clicked on these button**/
-    void updateButton(long time, ThinkerButtonBase button);
+    void updateButton(long time, kGuiButtonBase button);
     /**Used to detect if button need to redraw to fbo**/
     boolean isActive(long time);
 }

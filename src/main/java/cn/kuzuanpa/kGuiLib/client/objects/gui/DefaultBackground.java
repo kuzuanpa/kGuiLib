@@ -34,7 +34,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 
-public class DefaultBackground extends ThinkerButtonBase {
+public class DefaultBackground extends kGuiButtonBase {
     int color;
     String text;
     public DefaultBackground(int id){

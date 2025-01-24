@@ -29,7 +29,7 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
 
 public class animeMoveSlowOut implements IGuiAnime {
@@ -63,7 +63,7 @@ public class animeMoveSlowOut implements IGuiAnime {
     }
 
     @Override
-    public void updateButton(long time, ThinkerButtonBase button) {
+    public void updateButton(long time, kGuiButtonBase button) {
         long timer = System.currentTimeMillis()- time;
         if(timer<startTime) return;
         if (timer < endTime) {

@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Image extends ThinkerButtonBase implements IAnimatableButton {
+public class Image extends kGuiButtonBase implements IAnimatableButton {
 
     public Image(int id, String texturePath, int posX, int posY, int width, int height){
         super(id,posX,posY,width,height,"");

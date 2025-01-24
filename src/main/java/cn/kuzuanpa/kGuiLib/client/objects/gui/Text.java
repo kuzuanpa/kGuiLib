@@ -36,7 +36,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Text extends ThinkerButtonBase {
+public class Text extends kGuiButtonBase {
     public int color;
     public String text;
     public Text(int id, String text, int posX, int posY){

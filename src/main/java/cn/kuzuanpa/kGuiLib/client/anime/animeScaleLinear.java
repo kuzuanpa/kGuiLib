@@ -29,24 +29,30 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
 
 public class animeScaleLinear implements IGuiAnime {
-    public animeScaleLinear(int startTime, int endTime, float scaleRate, float scaleX, float scaleY){
+    public animeScaleLinear(int startTime, int endTime, float scale) {
+        this(startTime,endTime,scale,1,1);
+    }
+    public animeScaleLinear(int startTime, int endTime, float scale, float scaleX, float scaleY){
         this.startTime=startTime;
         this.endTime=endTime;
-        this.scaleRate=scaleRate;
+        this.scale =scale;
         this.scaleX=scaleX;
         this.scaleY=scaleY;
     }
     public int startTime, endTime;
-    public float scaleRate,scaleX,scaleY;
+    public float scale,scaleX,scaleY;
     @Override
     public void animeDraw(long timer) {
         if(timer<startTime) return;
-        if(timer<endTime) GL11.glScalef(((float)(timer - startTime)/(float)(endTime-startTime))*scaleX*scaleRate,((float)(timer - startTime)/(float)(endTime-startTime))*scaleY*scaleRate,1);
-        else GL11.glScalef(scaleX*scaleRate,scaleY*scaleRate,1);
+        if(timer<endTime) {
+            float rate = (1-scale)*((float)(timer - startTime)/(float)(endTime-startTime));
+            GL11.glScalef(1-(rate*scaleX),1-(rate*scaleY),1);
+        }
+        else GL11.glScalef(scaleX* scale,scaleY* scale,1);
     }
 
     @Override
@@ -55,7 +61,7 @@ public class animeScaleLinear implements IGuiAnime {
     @Override
     public void animeDrawAfter(long time) {}
     @Override
-    public void updateButton(long timer, ThinkerButtonBase button) {
+    public void updateButton(long timer, kGuiButtonBase button) {
     }
     @Override
     public boolean isActive(long time) {

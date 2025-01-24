@@ -32,7 +32,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import org.lwjgl.opengl.GL11;
 
-public class BooleanConfigButton extends ThinkerButtonBase {
+public class BooleanConfigButton extends kGuiButtonBase {
     public BooleanConfigButton(int id, int xPos, int yPos, int width, int height, String displayText, configBoolean config) {
         super(id, xPos, yPos,width,height,displayText);
         this.config=config;

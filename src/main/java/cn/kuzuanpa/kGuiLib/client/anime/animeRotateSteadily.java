@@ -29,7 +29,7 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
 
 public class animeRotateSteadily implements IGuiAnime {
@@ -52,7 +52,7 @@ public class animeRotateSteadily implements IGuiAnime {
 
     }
     @Override
-    public void updateButton(long time, ThinkerButtonBase button) {
+    public void updateButton(long time, kGuiButtonBase button) {
     }
     @Override
     public boolean isActive(long time) {

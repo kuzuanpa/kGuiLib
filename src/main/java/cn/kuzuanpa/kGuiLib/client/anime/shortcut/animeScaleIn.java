@@ -31,7 +31,6 @@ package cn.kuzuanpa.kGuiLib.client.anime.shortcut;
 
 import cn.kuzuanpa.kGuiLib.client.anime.IGuiAnime;
 import cn.kuzuanpa.kGuiLib.client.anime.animeScaleQuad;
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.opengl.GL11;
@@ -40,7 +39,7 @@ public class animeScaleIn extends animeScaleQuad implements IGuiAnime {
     /**@param anchorX Screen width relative, usually 0.0F~1.0F
      * @param anchorY Screen height relative, usually 0.0F~1.0F**/
     public animeScaleIn(int length,float anchorX, float anchorY) {
-        super(0, length, 10F, 1, 1, 3);
+        super(0, length, 10F, 3, 1, 1);
         this.anchorX=anchorX;
         this.anchorY=anchorY;
     }

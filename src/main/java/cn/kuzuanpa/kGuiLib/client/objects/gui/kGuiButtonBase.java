@@ -24,25 +24,22 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static cn.kuzuanpa.kGuiLib.kGuiLib.MOD_ID;
-
-public class ThinkerButtonBase extends GuiButton implements IAnimatableButton {
+public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
     public final ArrayList<IGuiAnime> GuiAnimeList = new ArrayList<>();
     public long timer =0;
     public int animeXModify=0,animeYModify=0,animeWidthModify=0,animeHeightModify=0,joinTime=0,leaveTime=Integer.MAX_VALUE;
     public boolean needUpdate = true, firstFrameRendered = false;
-    public ThinkerButtonBase(int id, int xPos, int yPos, int width, int height, String displayText) {
+    public kGuiButtonBase(int id, int xPos, int yPos, int width, int height, String displayText) {
         super(id, xPos, yPos,width,height,displayText);
         this.fbo = new Framebuffer(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight,false);
     }
 
-    public ThinkerButtonBase(int id, int xPos, int yPos, int width, int height) {
+    public kGuiButtonBase(int id, int xPos, int yPos, int width, int height) {
         this(id, xPos, yPos,width,height,"");
     }
 
@@ -108,6 +105,7 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableButton {
     }
 
     public void drawFBOToScreen(Minecraft mc, int mouseX, int mouseY){
+        GL11.glPushMatrix();
         if(isAnimatedInFBO)IAnimatableButton.drawPre(this,timer);
 
         ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
@@ -127,6 +125,8 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableButton {
         if(isAnimatedInFBO)IAnimatableButton.draw(this,timer);
         tessellator.draw();
         if(isAnimatedInFBO)IAnimatableButton.drawAfter(this,timer);
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        GL11.glPopMatrix();
     }
 
     public void drawButton2(Minecraft mc, int mouseX, int mouseY)
@@ -157,12 +157,12 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableButton {
         IAnimatableButton.drawAfter(this,timer);
     }
 
-    public ThinkerButtonBase addAnime(IGuiAnime anime){
+    public kGuiButtonBase addAnime(IGuiAnime anime){
         GuiAnimeList.add(anime);
         return this;
     }
 
-    public ThinkerButtonBase addToList(List<ThinkerButtonBase> list){
+    public kGuiButtonBase addToList(List<kGuiButtonBase> list){
         list.add(this);
         return this;
     }
@@ -186,19 +186,19 @@ public class ThinkerButtonBase extends GuiButton implements IAnimatableButton {
         return !firstFrameRendered || IAnimatableButton.isAnimeActive(this, this.timer);
     }
     public int FBOOffsetX=0,FBOOffsetY=0;
-    public ThinkerButtonBase setFBOOffset(int x,int y){
+    public kGuiButtonBase setFBOOffset(int x, int y){
         FBOOffsetX=x;
         FBOOffsetY=y;
         return this;
     }
     public boolean isAnimatedInFBO = false;
 
-    public ThinkerButtonBase setAnimatedInFBO(boolean animatedInFBO) {
+    public kGuiButtonBase setAnimatedInFBO(boolean animatedInFBO) {
         isAnimatedInFBO = animatedInFBO;
         return this;
     }
 
-    public ThinkerButtonBase setJoinLeaveTime(int joinTime, int leaveTime) {
+    public kGuiButtonBase setJoinLeaveTime(int joinTime, int leaveTime) {
         this.joinTime = joinTime;
         this.leaveTime=leaveTime;
         return this;

@@ -39,7 +39,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.text.NumberFormat;
 
-public class NumberConfigButton extends ThinkerButtonBase {
+public class NumberConfigButton extends kGuiButtonBase {
     public NumberConfigButton(int id, int xPos, int yPos, int width, int height,String displayText, configNumber config) {
         super(id, xPos, yPos,width,height,displayText);
         this.config=config;

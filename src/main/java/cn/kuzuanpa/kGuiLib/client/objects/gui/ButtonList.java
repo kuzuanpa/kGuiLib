@@ -30,7 +30,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ButtonList extends ThinkerButtonBase implements IAnimatableButton, IBoundedButton, IMouseWheelAccepter {
+public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBoundedButton, IMouseWheelAccepter {
     int color, maxScrolled;
     public ButtonList(int id, int posX, int posY, int width, int height){
         super(id,posX,posY,width,height,"");
@@ -51,14 +51,14 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableButton, 
         if((YOffset)>0){YOffset=0;oldWheel=0;return;}
         if((YOffset)<-maxScrolled){YOffset=-maxScrolled;oldWheel=0;}
     }
-    List<ThinkerButtonBase> buttons= new ArrayList<>();
+    List<kGuiButtonBase> buttons= new ArrayList<>();
 
-    public ButtonList addSubButton(ThinkerButtonBase button){
+    public ButtonList addSubButton(kGuiButtonBase button){
         buttons.add(button);
         return this;
     }
 
-    public ButtonList removeSubButton(ThinkerButtonBase button){
+    public ButtonList removeSubButton(kGuiButtonBase button){
         button.destroy();
         buttons.remove(button);
         return this;
@@ -70,7 +70,7 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableButton, 
         return this;
     }
     @Override
-    public ThinkerButtonBase addAnime(IGuiAnime anime) {
+    public kGuiButtonBase addAnime(IGuiAnime anime) {
         if(anime instanceof IColorChangedAnime) buttons.forEach(b->b.addAnime(anime));
         else super.addAnime(anime);
         return this;
@@ -82,7 +82,7 @@ public class ButtonList extends ThinkerButtonBase implements IAnimatableButton, 
     public byte onPressed(IkGui gui, int mouseX, int mouseY) {
         for (int l = this.buttons.size() - 1; l >= 0 ;l--)
         {
-            ThinkerButtonBase guibutton = this.buttons.get(l);
+            kGuiButtonBase guibutton = this.buttons.get(l);
             mouseY-= (int) YOffset*Minecraft.getMinecraft().currentScreen.height/Minecraft.getMinecraft().displayHeight;
             if(!guibutton.isMouseInButton(mouseX, mouseY))continue;
 

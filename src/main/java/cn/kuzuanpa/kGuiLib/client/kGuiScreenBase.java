@@ -84,7 +84,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	public long initTime=0;
 
 	private List<String> hoveringString=new ArrayList<>();
-	public List<ThinkerButtonBase> buttons= new ArrayList<>();
+	public List<kGuiButtonBase> buttons= new ArrayList<>();
 
 	public kGuiScreenBase() {
 		openByUser=true;
@@ -110,7 +110,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
 
-		buttons.forEach(ThinkerButtonBase::destroy);
+		buttons.forEach(kGuiButtonBase::destroy);
 
 		buttonList.clear();
 		buttons.clear();
@@ -179,7 +179,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	}
 	@Override
 	public void releaseResources() {
-		buttons.forEach(ThinkerButtonBase::destroy);
+		buttons.forEach(kGuiButtonBase::destroy);
 		if(childGui!=null)childGui.releaseResources();
 	}
 	public String l10n(String key){String text1= LanguageRegistry.instance().getStringLocalization(key);return text1.isEmpty() ? key: text1;}
@@ -202,7 +202,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		boolean hasButtonPressed = false;
 		for (int l = this.buttonList.size() - 1; l >= 0 ;l--)
 		{
-			ThinkerButtonBase guibutton = (ThinkerButtonBase)this.buttonList.get(l);
+			kGuiButtonBase guibutton = (kGuiButtonBase)this.buttonList.get(l);
 			if(!guibutton.isMouseInButton(mouseX, mouseY))continue;
 			GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, this.buttonList);
 

@@ -31,7 +31,7 @@
 package cn.kuzuanpa.kGuiLib.client;
 
 import cn.kuzuanpa.kGuiLib.client.objects.IMouseWheelAccepter;
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -53,7 +53,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -105,7 +104,7 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 	public long initTime=0;
 
 	private List<String> hoveringString=new ArrayList<>();
-	public List<ThinkerButtonBase> buttons= new ArrayList<>();
+	public List<kGuiButtonBase> buttons= new ArrayList<>();
 
 	public kGuiContainerBase(Container container) {
         super(container);
@@ -131,7 +130,7 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
 
-		buttons.forEach(ThinkerButtonBase::destroy);
+		buttons.forEach(kGuiButtonBase::destroy);
 
 		buttonList.clear();
 		buttons.clear();
@@ -201,7 +200,7 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 
 	@Override
 	public void releaseResources() {
-		buttons.forEach(ThinkerButtonBase::destroy);
+		buttons.forEach(kGuiButtonBase::destroy);
 		if(childGui!=null)childGui.releaseResources();
 	}
 
@@ -225,7 +224,7 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 		boolean hasButtonPressed = false;
 		for (int l = this.buttonList.size() - 1; l >= 0 ;l--)
 		{
-			ThinkerButtonBase guibutton = (ThinkerButtonBase)this.buttonList.get(l);
+			kGuiButtonBase guibutton = (kGuiButtonBase)this.buttonList.get(l);
 			if(!guibutton.isMouseInButton(mouseX, mouseY))continue;
 			GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, this.buttonList);
 

@@ -30,14 +30,8 @@
 package cn.kuzuanpa.kGuiLib.client.anime;
 
 import cn.kuzuanpa.kGuiLib.kGuiLib;
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
-import cpw.mods.fml.common.FMLLog;
-import org.apache.logging.log4j.Level;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Map;
-
-import static cn.kuzuanpa.kGuiLib.kGuiLib.getInt;
 
 public class animeRGBA implements IGuiAnime, IColorChangedAnime{
     public animeRGBA(int startTime, int endTime,int startR,int startG,int startB,int startA,int dR,int dG,int dB,int dA){
@@ -73,7 +67,7 @@ public class animeRGBA implements IGuiAnime, IColorChangedAnime{
     public void animeDrawAfter(long time) {
     }
     @Override
-    public void updateButton(long time, ThinkerButtonBase button) {
+    public void updateButton(long time, kGuiButtonBase button) {
     }
 
     @Override

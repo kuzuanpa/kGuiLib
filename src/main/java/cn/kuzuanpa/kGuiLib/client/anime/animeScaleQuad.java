@@ -29,13 +29,14 @@
  */
 package cn.kuzuanpa.kGuiLib.client.anime;
 
-import cn.kuzuanpa.kGuiLib.client.objects.gui.ThinkerButtonBase;
-import cpw.mods.fml.common.FMLLog;
-import org.apache.logging.log4j.Level;
+import cn.kuzuanpa.kGuiLib.client.objects.gui.kGuiButtonBase;
 import org.lwjgl.opengl.GL11;
 
 public class animeScaleQuad implements IGuiAnime {
-    public animeScaleQuad(int startTime, int endTime, float scaleRate, float scaleX, float scaleY, float strength){
+    public animeScaleQuad(int startTime, int endTime, float scaleRate, float strength) {
+        this(startTime, endTime, scaleRate, strength, 1, 1);
+    }
+    public animeScaleQuad(int startTime, int endTime, float scaleRate, float strength, float scaleX, float scaleY){
         this.startTime=startTime;
         this.endTime=endTime;
         this.scaleRate=scaleRate;
@@ -48,8 +49,10 @@ public class animeScaleQuad implements IGuiAnime {
     @Override
     public void animeDraw(long timer) {
         if(timer<startTime) return;
-        float rate = 1- (float) Math.pow(1-((float)(timer - startTime)/(float)(endTime-startTime)),strength);
-        if(timer<endTime) GL11.glScalef(rate*scaleX*scaleRate,rate*scaleY*scaleRate,1);
+        if(timer<endTime) {
+            float rate = (1-scaleRate) * (1 - (float) Math.pow(1-((float)(timer - startTime)/(float)(endTime-startTime)),strength));
+            GL11.glScalef(1-rate*scaleX,1-rate*scaleY,1);
+        }
         else GL11.glScalef(scaleX*scaleRate,scaleY*scaleRate,1);
     }
 
@@ -59,7 +62,7 @@ public class animeScaleQuad implements IGuiAnime {
     @Override
     public void animeDrawAfter(long time) {}
     @Override
-    public void updateButton(long timer, ThinkerButtonBase button) {
+    public void updateButton(long timer, kGuiButtonBase button) {
     }
 
     @Override
