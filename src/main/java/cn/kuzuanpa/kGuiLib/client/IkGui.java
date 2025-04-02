@@ -29,7 +29,7 @@ public interface IkGui {
     void onKeyTyped(char key, int keyCode);
     void onMouseClicked(int mouseX, int mouseY, int mouseButton);
     boolean onButtonPressed(GuiButton button, int mouseX, int mouseY);
-    void handleMouseInput2();
+    void handleMouseInput2(int mouseX, int mouseY);
 
     IkGui setMC(Minecraft mc);
     IkGui setFontRenderer(FontRenderer fontRenderer);

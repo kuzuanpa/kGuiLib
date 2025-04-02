@@ -227,14 +227,14 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 	@Override
 	public void handleMouseInput() {
-		handleMouseInput2();
-	}
-
-	public void handleMouseInput2(){
-		super.handleMouseInput();
-		if(childGui!=null)childGui.handleMouseInput2();
 		int mouseX = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
 		int mouseY = mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
+		handleMouseInput2(mouseX, mouseY);
+	}
+
+	public void handleMouseInput2(int mouseX, int mouseY){
+		super.handleMouseInput();
+		if(childGui!=null)childGui.handleMouseInput2(mouseX, mouseY);
 
 		checkRequestedTooltipPos(mouseX,mouseY);
 		if(Mouse.isInsideWindow()&&Mouse.getEventDWheel()!=0)buttons.stream().filter(buttonBase -> buttonBase instanceof IMouseWheelAccepter).map(button-> ((IMouseWheelAccepter) button)).forEach(button->button.handleMouseWheel(mouseX,mouseY, Mouse.getEventDWheel()));
