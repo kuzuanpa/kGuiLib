@@ -193,6 +193,7 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 		//profileHandler.oldWheel=0;
 		if(childGui !=null) childGui.close();
 		releaseResources();
+		this.mc.thePlayer.closeScreen();
 		this.mc.displayGuiScreen(null);
 		this.mc.setIngameFocus();
 		return true;
@@ -368,9 +369,9 @@ public abstract class kGuiContainerBase extends GuiContainer implements IkGui{
 
 		requestedTooltipMap.values().forEach(tooltip -> tooltip.isPosCheckPassed=tooltip.posPredicate.test(new Vector2f(mouseX-ContainerX,mouseY-ContainerY)));
 	}
-
-	public long getTimer(){
-		return System.currentTimeMillis()-initTime;
+	@Override
+	public int getTimer(){
+		return (int) (System.currentTimeMillis()-initTime);
 	}
 
 	public boolean doesGuiPauseGame()

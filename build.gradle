@@ -10,9 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.+') {
-            changing = true
-        }
+        classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.+') 
     }
 }
 
@@ -85,4 +83,27 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task devJar(type: Jar) {
     classifier = "dev"
     from sourceSets.main.output
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'cn.kuzuanpa'
+            // Add any other artifacts here that you would like to publish!
+            artifact(jar) {
+                builtBy build
+            }
+            artifact(sourcesJar) {
+                builtBy sourcesJar
+            }
+            artifact(devJar) {
+                builtBy devJar
+            }
+        }
+    }
+
+    // This block selects the repositories you want to publish to.
+    repositories {
+        mavenLocal()
+        // Add the repositories you want to publish to here.
+    }
 }

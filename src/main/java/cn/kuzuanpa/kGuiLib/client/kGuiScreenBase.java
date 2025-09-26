@@ -173,6 +173,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		}
 		if(childGui !=null) childGui.close();
 		releaseResources();
+		this.mc.thePlayer.closeScreen();
 		this.mc.displayGuiScreen(null);
 		this.mc.setIngameFocus();
 		return true;
@@ -243,8 +244,9 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	public void checkRequestedTooltipPos(int mouseX, int mouseY){
 		requestedTooltipMap.values().forEach(tooltip -> tooltip.isPosCheckPassed=tooltip.posPredicate.test(new Vector2f(mouseX,mouseY)));
 	}
-	public long getTimer(){
-		return System.currentTimeMillis()-initTime;
+	@Override
+	public int getTimer(){
+		return (int) (System.currentTimeMillis()-initTime);
 	}
 
 	public boolean doesGuiPauseGame()

@@ -25,6 +25,7 @@ public interface IkGui {
     void drawScreen2(int p_73863_1_, int p_73863_2_, float p_73863_3_);
     void releaseResources();
     boolean close();
+    int getTimer();
 
     void onKeyTyped(char key, int keyCode);
     void onMouseClicked(int mouseX, int mouseY, int mouseButton);
