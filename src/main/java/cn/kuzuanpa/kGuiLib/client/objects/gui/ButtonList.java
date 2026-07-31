@@ -32,6 +32,7 @@ import java.util.List;
 
 public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBoundedButton, IMouseWheelAccepter {
     int color, maxScrolled;
+    List<kGuiButtonBase> buttons= new ArrayList<>();
     public ButtonList(int id, int posX, int posY, int width, int height){
         super(id,posX,posY,width,height,"");
         this.color=-1;
@@ -39,6 +40,7 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
     }
 
     public ButtonList setMaxScrolled(int maxScrolled) {
+        if(maxScrolled < 0)maxScrolled = 0;
         this.maxScrolled = maxScrolled;
         return this;
     }
@@ -51,7 +53,6 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
         if((YOffset)>0){YOffset=0;oldWheel=0;return;}
         if((YOffset)<-maxScrolled){YOffset=-maxScrolled;oldWheel=0;}
     }
-    List<kGuiButtonBase> buttons= new ArrayList<>();
 
     public ButtonList addSubButton(kGuiButtonBase button){
         buttons.add(button);
@@ -64,6 +65,9 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
         return this;
     }
 
+    public List<kGuiButtonBase> getSubButtonList(){
+        return buttons;
+    }
     public ButtonList clearSubButton(){
         buttons.forEach(IkGuiButton::destroy);
         buttons.clear();
