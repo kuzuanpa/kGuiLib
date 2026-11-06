@@ -67,7 +67,7 @@ public interface IAnimatableButton extends IkGuiButton {
         obj.getGuiAnimeList().forEach(anime -> anime.animeDraw(timer));
     }
     static void drawAfter(IAnimatableButton obj, long timer){
-        obj.getGuiAnimeList().forEach(anime -> anime.animeDrawPre(timer));
+        obj.getGuiAnimeList().forEach(anime -> anime.animeDrawAfter(timer));
         GL11.glPopMatrix();
     }
     static boolean isAnimeActive(IAnimatableButton obj, long timer){

@@ -58,8 +58,7 @@ public class animeMoveLinear implements IGuiAnime {
     }
 
     @Override
-    public void updateButton(long time, kGuiButtonBase button) {
-        long timer = System.currentTimeMillis()- time;
+    public void updateButton(long timer, kGuiButtonBase button) {
         if(timer<startTime) return;
         if (timer < endTime) {
             float f1=((float)(timer - startTime)/(float)(endTime-startTime));

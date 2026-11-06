@@ -65,13 +65,19 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	}
 
 	public void addOrUpdateTooltip(int id, String[] strings,Predicate<Vector2f> MousePositionPredicate){
-		if(requestedTooltipMap.get(id)!=null)requestedTooltipMap.get(id).strings= Arrays.asList(strings);
+		if(requestedTooltipMap.get(id)!=null){
+			requestedTooltipMap.get(id).strings= Arrays.asList(strings);
+			requestedTooltipMap.get(id).posPredicate=MousePositionPredicate;
+			requestedTooltipMap.get(id).isPosCheckPassed=false;
+		}
 		else addTooltip(id,strings,MousePositionPredicate,true);
 	}
 	public void addOrUpdateTooltip(int id, String[] strings,Predicate<Vector2f> MousePositionPredicate,boolean additionalCondition){
 		if(requestedTooltipMap.get(id)!=null){
 			requestedTooltipMap.get(id).strings= Arrays.asList(strings);
 			requestedTooltipMap.get(id).additionalCondition=additionalCondition;
+			requestedTooltipMap.get(id).posPredicate=MousePositionPredicate;
+			requestedTooltipMap.get(id).isPosCheckPassed=false;
 		}
 		else addTooltip(id,strings,MousePositionPredicate,additionalCondition);
 	}
@@ -83,6 +89,7 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	public boolean openByUser=false;
 	public long initTime=0;
 
+	private boolean resourcesReleased=false;
 	private List<String> hoveringString=new ArrayList<>();
 	public List<kGuiButtonBase> buttons= new ArrayList<>();
 
@@ -110,10 +117,11 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 		displayWidth= FMLClientHandler.instance().getClient().currentScreen.width;
 		displayHeight= FMLClientHandler.instance().getClient().currentScreen.height;
 
-		buttons.forEach(kGuiButtonBase::destroy);
+		releaseResources();
 
 		buttonList.clear();
 		buttons.clear();
+		resourcesReleased=false;
 
 		addButtons();
 		if(!buttonList.isEmpty()) FMLLog.log(Level.WARN, this.toString()+": raw buttonList should not be used!");
@@ -136,17 +144,19 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 
 		if(childGui != null) childGui.drawScreen2(p_73863_1_,p_73863_2_,p_73863_3_);
 
-		if(!Mouse.isInsideWindow()) return;
+		if(!Mouse.isInsideWindow()||childGui!=null) return;
 
 		int x = Mouse.getX() * mc.currentScreen.width / this.mc.displayWidth;
 		int y = mc.currentScreen.height - Mouse.getY() * mc.currentScreen.height / this.mc.displayHeight - 1;
 
+		checkRequestedTooltipPos(x,y);
 		drawButtonTooltips(x,y);
 		drawRequestedTooltips(x,y);
 	}
 	public void drawButtonTooltips(int mouseX, int mouseY){
 		GL11.glPushMatrix();
 		//Draw button tooltips
+		hoveringString=Collections.emptyList();
 		buttons.forEach(button -> {
 			if (!button.visible) return;
 			if (button.isMouseInButton(mouseX, mouseY)) hoveringString = Collections.singletonList(button.displayString);
@@ -180,9 +190,17 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	}
 	@Override
 	public void releaseResources() {
+		if(resourcesReleased)return;
+		resourcesReleased=true;
 		buttons.forEach(kGuiButtonBase::destroy);
 		if(childGui!=null)childGui.releaseResources();
 	}
+	@Override
+	public void onGuiClosed() {
+		releaseResources();
+		super.onGuiClosed();
+	}
+
 	public String l10n(String key){String text1= LanguageRegistry.instance().getStringLocalization(key);return text1.isEmpty() ? key: text1;}
 
 	protected void keyTyped(char p_73869_1_, int p_73869_2_)
@@ -195,11 +213,12 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
 	{
 		if(childGui!=null)childGui.onMouseClicked(mouseX,mouseY,mouseButton);
-		onMouseClicked( mouseX,  mouseY,  mouseButton);
+		else onMouseClicked(mouseX,mouseY,mouseButton);
 	}
 
 	@Override
 	public void onMouseClicked(int mouseX, int mouseY, int mouseButton) {
+		if(childGui!=null){childGui.onMouseClicked(mouseX,mouseY,mouseButton);return;}
 		boolean hasButtonPressed = false;
 		for (int l = this.buttonList.size() - 1; l >= 0 ;l--)
 		{
@@ -234,8 +253,9 @@ public abstract class kGuiScreenBase extends GuiScreen implements IkGui{
 	}
 
 	public void handleMouseInput2(int mouseX, int mouseY){
-		super.handleMouseInput();
-		if(childGui!=null)childGui.handleMouseInput2(mouseX, mouseY);
+		// Only the topmost layer consumes the native mouse event.
+		if(childGui==null)super.handleMouseInput();
+		if(childGui!=null){childGui.handleMouseInput2(mouseX, mouseY);return;}
 
 		checkRequestedTooltipPos(mouseX,mouseY);
 		if(Mouse.isInsideWindow()&&Mouse.getEventDWheel()!=0)buttons.stream().filter(buttonBase -> buttonBase instanceof IMouseWheelAccepter).map(button-> ((IMouseWheelAccepter) button)).forEach(button->button.handleMouseWheel(mouseX,mouseY, Mouse.getEventDWheel()));

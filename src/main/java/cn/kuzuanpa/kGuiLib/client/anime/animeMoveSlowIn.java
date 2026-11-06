@@ -64,11 +64,10 @@ public class animeMoveSlowIn implements IGuiAnime {
     }
 
     @Override
-    public void updateButton(long time, kGuiButtonBase button) {
-        long timer = System.currentTimeMillis()- time;
+    public void updateButton(long timer, kGuiButtonBase button) {
         if(timer<startTime) return;
         if (timer < endTime) {
-            float f1=((float)(timer - startTime)/(float)(endTime-startTime));
+            float f1=1- (float) Math.pow(1-((float)(timer - startTime)/(float)(endTime-startTime)),strength);
             button.animeXModify+= (int) (dX*f1);
             button.animeYModify+= (int) (dY*f1);
         }

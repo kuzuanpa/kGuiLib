@@ -55,7 +55,7 @@ public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         needUpdate = updateRenderState(timer);
-        if(needUpdate && (timer<joinTime || timer>leaveTime))return;
+        if(!visible || timer<joinTime || timer>leaveTime)return;
         int screenWidth = mc.displayWidth;
         int screenHeight = mc.displayHeight;
         int matrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
@@ -225,6 +225,7 @@ public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
 
     public boolean isMouseInButton(int mouseX, int mouseY)
     {
+        if(timer<joinTime || timer>leaveTime)return false;
         animeXModify=animeYModify=animeHeightModify=animeWidthModify=0;
         GuiAnimeList.forEach(anime -> anime.updateButton(timer,this));
         animeXModify += FBOOffsetX;

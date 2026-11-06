@@ -60,10 +60,11 @@ public class NumberConfigButton extends kGuiButtonBase {
 
             if(!isAnimatedInFBO)IAnimatableButton.draw(this,timer);
 
-            float progress=config.get()/(config.max()-config.min());
+            float range=config.max()-config.min();
+            float progress=range == 0 ? 0 : Math.max(0,Math.min(1,(config.get()-config.min())/range));
             drawRect(xPosition+2,yPosition+height/2,xPosition+width-2,yPosition+(height/2)+1,0xcccccccc);
             drawRect((int) (xPosition+2+(width-4)*progress)-1,yPosition+10, (int) (xPosition+2+(width-4)*progress)+1,yPosition+height-10,-1);
-            if(k==2&& Mouse.isButtonDown(0)) config.update(mouseX<xPosition+2?config.min():mouseX>xPosition+width-2?config.max():(config.max()-config.min())*(mouseX-2-xPosition)/(width-4));
+            if(k==2&& Mouse.isButtonDown(0)&&width>4) config.update(config.min()+range*Math.max(0,Math.min(1,(mouseX-animeXModify-2-xPosition)/(float)(width-4))));
             NumberFormat nf = NumberFormat.getNumberInstance();
             nf.setMaximumFractionDigits(2);
             this.drawString(fontrenderer, this.displayString, this.xPosition, this.yPosition, -1);

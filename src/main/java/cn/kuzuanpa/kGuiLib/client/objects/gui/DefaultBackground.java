@@ -65,8 +65,6 @@ public class DefaultBackground extends kGuiButtonBase {
             tessellator.draw();
             GL11.glEnable(GL11.GL_BLEND);
             //mixinHandler.cancelForgeFontColorOverride=false;
-            GuiAnimeList.forEach(anime -> anime.animeDrawAfter(timer));
-
             IAnimatableButton.drawAfter(this,timer);
         }
     }

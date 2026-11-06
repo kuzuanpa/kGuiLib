@@ -84,10 +84,10 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
 
     @Override
     public byte onPressed(IkGui gui, int mouseX, int mouseY) {
+        mouseY=(int) Math.floor(mouseY-YOffset);
         for (int l = this.buttons.size() - 1; l >= 0 ;l--)
         {
             kGuiButtonBase guibutton = this.buttons.get(l);
-            mouseY-= (int) YOffset*Minecraft.getMinecraft().currentScreen.height/Minecraft.getMinecraft().displayHeight;
             if(!guibutton.isMouseInButton(mouseX, mouseY))continue;
 
             guibutton.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
@@ -127,7 +127,8 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
         IBoundedButton.drawPre(this);
         tickWheel();
         GL11.glTranslatef(0,YOffset,0);
-        buttons.stream().filter(button-> button.xPosition + button.height > xPosition && button.xPosition < xPosition+height).forEach(b->b.drawButton(mc, mouseX, mouseY));
+        int contentMouseY=(int) Math.floor(mouseY-YOffset);
+        buttons.stream().filter(button-> button.xPosition + button.width > xPosition && button.xPosition < xPosition+width).forEach(b->b.drawButton(mc, mouseX, contentMouseY));
         IBoundedButton.drawAfter();
     }
 
@@ -154,6 +155,7 @@ public class ButtonList extends kGuiButtonBase implements IAnimatableButton, IBo
     @Override
     public void destroy() {
         buttons.forEach(IkGuiButton::destroy);
+        super.destroy();
     }
 
     @Override
