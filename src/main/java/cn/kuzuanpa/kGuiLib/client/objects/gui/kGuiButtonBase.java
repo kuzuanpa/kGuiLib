@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.shader.Framebuffer;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.EXTFramebufferObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,14 @@ public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
     public boolean needUpdate = true, firstFrameRendered = false;
     public kGuiButtonBase(int id, int xPos, int yPos, int width, int height, String displayText) {
         super(id, xPos, yPos,width,height,displayText);
-        this.fbo = new Framebuffer(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight,false);
+        int previousFramebuffer = OpenGlHelper.isFramebufferEnabled() ? GL11.glGetInteger(EXTFramebufferObject.GL_FRAMEBUFFER_BINDING_EXT) : 0;
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        try {
+            this.fbo = new Framebuffer(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight,false);
+        } finally {
+            if(OpenGlHelper.isFramebufferEnabled())OpenGlHelper.func_153171_g(OpenGlHelper.field_153198_e, previousFramebuffer);
+            GL11.glPopAttrib();
+        }
     }
 
     public kGuiButtonBase(int id, int xPos, int yPos, int width, int height) {
@@ -48,60 +56,103 @@ public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         needUpdate = updateRenderState(timer);
         if(needUpdate && (timer<joinTime || timer>leaveTime))return;
-        int screenWidth = Minecraft.getMinecraft().displayWidth;
-        int screenHeight = Minecraft.getMinecraft().displayHeight;
-        GL11.glPushMatrix();
-
-        ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-
-        int w = scaledresolution.getScaledWidth();
-        int h = scaledresolution.getScaledHeight();
-
-        //These Matrix and ortho settings are both applied in drawToFBO & drawFBOToScreen
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        int screenWidth = mc.displayWidth;
+        int screenHeight = mc.displayHeight;
+        int matrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0.0D, w, h, 0.0D, 1000.0D, 3000.0D);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glLoadIdentity();
-        GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
-
-//todo: just update when necessary
-        needUpdate = true;
-
-        if(needUpdate)drawToFBO(mc,mouseX,mouseY,screenWidth,screenHeight);
-        GL11.glPopMatrix();
-
         GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-        GL11.glViewport(0,0,screenWidth,screenHeight);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+        try {
+            // Without FBO support, never clear or sample the current screen as an offscreen target.
+            if(!OpenGlHelper.isFramebufferEnabled()) {
+                GL11.glTranslatef(FBOOffsetX,FBOOffsetY,0);
+                if(isAnimatedInFBO)IAnimatableButton.drawPre(this,timer);
+                if(isAnimatedInFBO)IAnimatableButton.draw(this,timer);
+                drawButton2(mc,mouseX,mouseY);
+                if(isAnimatedInFBO)IAnimatableButton.drawAfter(this,timer);
+                return;
+            }
 
-        drawFBOToScreen(mc,mouseX,mouseY);
+            ScaledResolution scaledresolution = new ScaledResolution(mc, screenWidth, screenHeight);
+            int w = scaledresolution.getScaledWidth();
+            int h = scaledresolution.getScaledHeight();
 
-        GL11.glDisable(GL11.GL_COLOR_MATERIAL);
-        GL11.glDepthMask(true);
-        GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadIdentity();
+            GL11.glOrtho(0.0D, w, h, 0.0D, 1000.0D, 3000.0D);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPushMatrix();
+            try {
+                GL11.glLoadIdentity();
+                GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+
+                //todo: just update when necessary
+                needUpdate = true;
+                drawToFBO(mc,mouseX,mouseY,screenWidth,screenHeight);
+            } finally {
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glPopMatrix();
+            }
+
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(false);
+            GL11.glViewport(0,0,screenWidth,screenHeight);
+            OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
+            GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+            // A transparent full-screen FBO must not depend on the previous widget's blend state.
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glColor4f(1.0F,1.0F,1.0F,1.0F);
+
+            drawFBOToScreen(mc,mouseX,mouseY);
+        } finally {
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
+            GL11.glMatrixMode(matrixMode);
+        }
     }
 
     public void drawToFBO(Minecraft mc, int mouseX, int mouseY, int screenWidth, int screenHeight) {
         firstFrameRendered = false;
+        int previousFramebuffer = GL11.glGetInteger(EXTFramebufferObject.GL_FRAMEBUFFER_BINDING_EXT);
         GL11.glPushMatrix();
-        fbo.bindFramebuffer(false);
-        GL11.glViewport(0,0,screenWidth,screenHeight);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-        drawButton2(mc, mouseX, mouseY);
-
-        fbo.unbindFramebuffer();
-        GL11.glPopMatrix();
-
-        Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
+        try {
+            if(fbo.framebufferObject < 0 || fbo.framebufferWidth != screenWidth || fbo.framebufferHeight != screenHeight) {
+                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+                try {
+                    fbo.createBindFramebuffer(screenWidth,screenHeight);
+                } finally {
+                    OpenGlHelper.func_153171_g(OpenGlHelper.field_153198_e, previousFramebuffer);
+                    GL11.glPopAttrib();
+                }
+            }
+            fbo.bindFramebuffer(true);
+            // Clear the whole texture to transparent, even inside a clipped ButtonList.
+            GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_SCISSOR_BIT);
+            try {
+                GL11.glDisable(GL11.GL_SCISSOR_TEST);
+                GL11.glColorMask(true,true,true,true);
+                GL11.glClearColor(0.0F,0.0F,0.0F,0.0F);
+                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            } finally {
+                GL11.glPopAttrib();
+            }
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            drawButton2(mc, mouseX, mouseY);
+        } finally {
+            // Nested widgets must return to their parent's FBO, rather than Minecraft's main FBO.
+            OpenGlHelper.func_153171_g(OpenGlHelper.field_153198_e, previousFramebuffer);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPopMatrix();
+        }
     }
 
     public void drawFBOToScreen(Minecraft mc, int mouseX, int mouseY){
@@ -176,6 +227,8 @@ public class kGuiButtonBase extends GuiButton implements IAnimatableButton {
     {
         animeXModify=animeYModify=animeHeightModify=animeWidthModify=0;
         GuiAnimeList.forEach(anime -> anime.updateButton(timer,this));
+        animeXModify += FBOOffsetX;
+        animeYModify += FBOOffsetY;
         return this.enabled && this.visible && mouseX >= this.xPosition+animeXModify && mouseY >= this.yPosition+animeYModify && mouseX < this.xPosition+animeXModify + this.width+animeWidthModify && mouseY < this.yPosition+animeYModify + this.height+animeHeightModify;
     }
     public void updateTimer(long timer){this.timer=timer;}
